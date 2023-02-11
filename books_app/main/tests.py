@@ -245,19 +245,30 @@ class MainTests(unittest.TestCase):
         self.assertIn('me1', response_text)
 
     def test_favorite_book(self):
-        # TODO: Login as the user me1
+        """Test favoriting a book."""
+        # Login as the user me1
+        create_books()
+        create_user()
+        login(self.app, 'me1', 'password')
 
-        # TODO: Make a POST request to the /favorite/1 route
+        # Make a POST request to the /favorite/1 route
+        self.app.post('/favorite/1')
 
-        # TODO: Verify that the book with id 1 was added to the user's favorites
-        pass
+        # Verify that the book with id 1 was added to the user's favorites
+        user = User.query.get(1)
+        self.assertIn(Book.query.get(1), user.favorite_books)
 
     def test_unfavorite_book(self):
-        # TODO: Login as the user me1, and add book with id 1 to me1's favorites
+        """Test unfavoriting a book."""
+        # Login as the user me1, and add book with id 1 to me1's favorites
+        create_books()
+        create_user()
+        login(self.app, 'me1', 'password')
 
-        # TODO: Make a POST request to the /unfavorite/1 route
-
-        # TODO: Verify that the book with id 1 was removed from the user's 
+        # Make a POST request to the /unfavorite/1 route
+        self.app.post('/favorite/1')
+        self.app.post('/unfavorite/1')
+        # Verify that the book with id 1 was removed from the user's 
         # favorites
-        pass
-
+        user = User.query.get(1)
+        self.assertNotIn(Book.query.get(1), user.favorite_books)
