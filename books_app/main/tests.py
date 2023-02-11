@@ -4,7 +4,7 @@ import app
 
 from datetime import date
 from books_app.extensions import app, db, bcrypt
-from books_app.models import Book, Author, User, Audience
+from books_app.models import Book, Author, User, Audience, Genre
 
 """
 Run these tests with the command:
@@ -214,19 +214,35 @@ class MainTests(unittest.TestCase):
 
         created_author = Author.query.filter_by(name='RJ Palacio').one()
         self.assertIsNotNone(created_author)
+
     def test_create_genre(self):
-        # TODO: Create a user & login (so that the user can access the route)
+        """Test creating a genre."""
+        # Create a user & login (so that the user can access the route)
+        create_books()
+        create_user()
+        login(self.app, 'me1', 'password')
 
-        # TODO: Make a POST request to the /create_genre route, 
+        # Make a POST request to the /create_genre route
+        post_data = {'name': 'Horror'}
+        self.app.post('/create_genre', data=post_data)
 
-        # TODO: Verify that the genre was updated in the database
-        pass
+        # Verify that the genre was updated in the database
+        created_genre = Genre.query.filter_by(name='Horror').one()
+        self.assertIsNotNone(created_genre)
 
     def test_profile_page(self):
-        # TODO: Make a GET request to the /profile/me1 route
+        """Test that the profile page shows the correct user info."""
+        create_books()
+        create_user()
+        login(self.app, 'me1', 'password')
 
-        # TODO: Verify that the response shows the appropriate user info
-        pass
+        # Make a GET request to the /profile/me1 route
+        response = self.app.get('/profile/me1')
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that the response shows the appropriate user info
+        response_text = response.get_data(as_text=True)
+        self.assertIn('me1', response_text)
 
     def test_favorite_book(self):
         # TODO: Login as the user me1
