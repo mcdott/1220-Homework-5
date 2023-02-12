@@ -83,16 +83,28 @@ class AuthTests(TestCase):
     def test_login_correct_password(self):
         """Test that a user can log in with the correct password."""
         # - Create a user
+        create_user()
+
         # - Make a POST request to /login, sending the created username & password
+        response = self.app.post('/login', data=dict(
+            username='me1', 
+            password='password'
+        ), follow_redirects=True)
+
         # - Check that the "login" button is not displayed on the homepage
-        pass
+        self.assertNotIn(b'Login', response.data)
+       
 
     def test_login_nonexistent_user(self):
-        # TODO: Write a test for the login route. It should:
+        """Test that a user cannot log in with a nonexistent username."""
         # - Make a POST request to /login, sending a username & password
-        # - Check that the login form is displayed again, with an appropriate
-        #   error message
-        pass
+        response = self.app.post('/login', data=dict(
+            username='nonexistent_user', 
+            password='password'
+        ), follow_redirects=True)
+        # - Check that the login form is displayed again, with error message
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'No user with that username. Please try again.', response.data)
 
     def test_login_incorrect_password(self):
         # TODO: Write a test for the login route. It should:
