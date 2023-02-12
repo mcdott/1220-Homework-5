@@ -52,21 +52,36 @@ class AuthTests(TestCase):
         db.drop_all()
         db.create_all()
 
+
     def test_signup(self):
-        # TODO: Write a test for the signup route. It should:
+        """Test that a user can sign up."""
         # - Make a POST request to /signup, sending a username & password
+        response = self.app.post('/signup', data={'username': 'test_user', 'password': 'test_password'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/login')
+
         # - Check that the user now exists in the database
-        pass
+        user = User.query.filter_by(username='test_user').first()
+        self.assertIsNotNone(user)
+        self.assertTrue(bcrypt.check_password_hash(user.password, 'test_password'))
 
     def test_signup_existing_user(self):
-        # TODO: Write a test for the signup route. It should:
-        # - Create a user
-        # - Make a POST request to /signup, sending the same username & password
-        # - Check that the form is displayed again with an error message
-        pass
+        """Test that a user cannot sign up with an existing username."""
+        # Create a user
+        create_user()
+
+        # Make a POST request to /signup, sending the same username & password
+        response = self.app.post('/signup', data=dict(
+            username='me1',
+            password='password'
+        ), follow_redirects=True)
+
+        # Check that the error message is displayed
+        self.assertIn(b'That username is taken. Please choose a different one.', response.data)
+
 
     def test_login_correct_password(self):
-        # TODO: Write a test for the login route. It should:
+        """Test that a user can log in with the correct password."""
         # - Create a user
         # - Make a POST request to /login, sending the created username & password
         # - Check that the "login" button is not displayed on the homepage
